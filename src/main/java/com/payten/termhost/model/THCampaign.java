@@ -82,6 +82,7 @@ public class THCampaign {
 
 	public THCampaign() {
 			super();
+			this.campaignText = "";
 		}
 
 	public THCampaign(Integer campaignId, String campaignName, String campaignDescription, Date campaignStart,

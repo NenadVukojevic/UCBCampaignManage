@@ -2,44 +2,34 @@ package com.payten.crm.model;
 
 import java.sql.Date;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
 
-import org.hibernate.annotations.Immutable;
-
-@Entity
-@Immutable
-@Table(name="Kampanje_Aktivne_ATM")
-public class CRMCampaign {
-	@Id
-	@Column(name="Kampanja_ID")
+public class CRMCampaignDto {
+	
 	String campaignId;
-	
-	@Column(name="Kampanja_Naziv")
-	String campaignName;
-	
-	@Column(name="Kampanja_Opis")
-	String campaignDesc;
-	
-	@Column(name="Start_Kampanje_Datum")
-	Date startDate;
-	
-	@Column(name="Kraj_Kampanje_Datum")
-	Date endDate;
 
-	public CRMCampaign() {
+	String campaignName;
+
+	String campaignDesc;
+
+	Date startDate;
+
+	Date endDate;
+	
+	boolean active;
+
+	public CRMCampaignDto() {
 		super();
 	}
 
-	public CRMCampaign(String campaignId, String campaignName, String campaignDesc, Date startDate, Date endDate) {
+	public CRMCampaignDto(String campaignId, String campaignName, String campaignDesc, Date startDate, Date endDate,
+			boolean active) {
 		super();
 		this.campaignId = campaignId;
 		this.campaignName = campaignName;
 		this.campaignDesc = campaignDesc;
 		this.startDate = startDate;
 		this.endDate = endDate;
+		this.active = active;
 	}
 
 	public String getCampaignId() {
@@ -80,6 +70,14 @@ public class CRMCampaign {
 
 	public void setEndDate(Date endDate) {
 		this.endDate = endDate;
+	}
+
+	public boolean isActive() {
+		return active;
+	}
+
+	public void setActive(boolean active) {
+		this.active = active;
 	}
 	
 	
