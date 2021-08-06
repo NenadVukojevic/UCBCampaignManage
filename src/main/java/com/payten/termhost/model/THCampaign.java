@@ -1,13 +1,17 @@
 package com.payten.termhost.model;
 
 import java.util.Date;
+import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
@@ -41,73 +45,31 @@ public class THCampaign {
 	@Column(name = "CAMPAIGN_TEXT")
 	private String campaignText;
 
-	@Column(name = "CAMPAIGN_IMG_URL")
-	private String campaignImgUrl;
+	@Column(name = "CONTACT_COLLECTING")
+	private boolean contactCollecting;
 
-	@OneToOne
-	@JoinColumn(name = "BTN_1")
-	private ButtonLabel btn1;
-
-	@OneToOne
-	@JoinColumn(name = "BTN_2")
-	private ButtonLabel btn2;
-
-	@OneToOne
-	@JoinColumn(name = "BTN_3")
-	private ButtonLabel btn3;
-
-	@OneToOne
-	@JoinColumn(name = "BTN_4")
-	private ButtonLabel btn4;
-
-	@OneToOne
-	@JoinColumn(name = "BTN_5")
-	private ButtonLabel btn5;
-
-	@OneToOne
-	@JoinColumn(name = "BTN_6")
-	private ButtonLabel btn6;
-
-	@OneToOne
-	@JoinColumn(name = "BTN_7")
-	private ButtonLabel btn7;
-
-	@OneToOne
-	@JoinColumn(name = "BTN_8")
-	private ButtonLabel btn8;
-
-	@OneToOne
-	@JoinColumn(name = "IMAGE_ID")
-	private AtmBackground atmBackground;
+	@OneToMany(fetch = FetchType.EAGER, mappedBy = "campaignId", cascade = CascadeType.ALL)
+	private List<CampaignDefinitions> definitions;
 
 	public THCampaign() {
-			super();
-			this.campaignText = "";
-		}
+		super();
+		this.campaignText = "";
+	}
 
 	public THCampaign(Integer campaignId, String campaignName, String campaignDescription, Date campaignStart,
-				Date campaignEnd, CampaignStatus campaignStatus, String campaignText, String campaignImgUrl,
-				ButtonLabel btn1, ButtonLabel btn2, ButtonLabel btn3, ButtonLabel btn4, ButtonLabel btn5, ButtonLabel btn6,
-				ButtonLabel btn7, ButtonLabel btn8, AtmBackground atmBackground) {
-			super();
-			this.campaignId = campaignId;
-			this.campaignName = campaignName;
-			this.campaignDescription = campaignDescription;
-			this.campaignStart = campaignStart;
-			this.campaignEnd = campaignEnd;
-			this.campaignStatus = campaignStatus;
-			this.campaignText = campaignText;
-			this.campaignImgUrl = campaignImgUrl;
-			this.btn1 = btn1;
-			this.btn2 = btn2;
-			this.btn3 = btn3;
-			this.btn4 = btn4;
-			this.btn5 = btn5;
-			this.btn6 = btn6;
-			this.btn7 = btn7;
-			this.btn8 = btn8;
-			this.atmBackground = atmBackground;
-		}
+			Date campaignEnd, CampaignStatus campaignStatus, String campaignText, boolean contactCollecting,
+			List<CampaignDefinitions> definitions) {
+		super();
+		this.campaignId = campaignId;
+		this.campaignName = campaignName;
+		this.campaignDescription = campaignDescription;
+		this.campaignStart = campaignStart;
+		this.campaignEnd = campaignEnd;
+		this.campaignStatus = campaignStatus;
+		this.campaignText = campaignText;
+		this.contactCollecting = contactCollecting;
+		this.definitions = definitions;
+	}
 
 	public Integer getCampaignId() {
 		return campaignId;
@@ -137,8 +99,8 @@ public class THCampaign {
 		return campaignStart;
 	}
 
-	public void setCampaignStart(Date campaignStart) {
-		this.campaignStart = campaignStart;
+	public void setCampaignStart(Date date) {
+		this.campaignStart = date;
 	}
 
 	public Date getCampaignEnd() {
@@ -165,83 +127,20 @@ public class THCampaign {
 		this.campaignText = campaignText;
 	}
 
-	public String getCampaignImgUrl() {
-		return campaignImgUrl;
+	public List<CampaignDefinitions> getDefinitions() {
+		return definitions;
 	}
 
-	public void setCampaignImgUrl(String campaignImgUrl) {
-		this.campaignImgUrl = campaignImgUrl;
+	public void setDefinitions(List<CampaignDefinitions> definitions) {
+		this.definitions = definitions;
 	}
 
-	public ButtonLabel getBtn1() {
-		return btn1;
+	public boolean isContactCollecting() {
+		return contactCollecting;
 	}
 
-	public void setBtn1(ButtonLabel btn1) {
-		this.btn1 = btn1;
+	public void setContactCollecting(boolean contactCollecting) {
+		this.contactCollecting = contactCollecting;
 	}
 
-	public ButtonLabel getBtn2() {
-		return btn2;
-	}
-
-	public void setBtn2(ButtonLabel btn2) {
-		this.btn2 = btn2;
-	}
-
-	public ButtonLabel getBtn3() {
-		return btn3;
-	}
-
-	public void setBtn3(ButtonLabel btn3) {
-		this.btn3 = btn3;
-	}
-
-	public ButtonLabel getBtn4() {
-		return btn4;
-	}
-
-	public void setBtn4(ButtonLabel btn4) {
-		this.btn4 = btn4;
-	}
-
-	public ButtonLabel getBtn5() {
-		return btn5;
-	}
-
-	public void setBtn5(ButtonLabel btn5) {
-		this.btn5 = btn5;
-	}
-
-	public ButtonLabel getBtn6() {
-		return btn6;
-	}
-
-	public void setBtn6(ButtonLabel btn6) {
-		this.btn6 = btn6;
-	}
-
-	public ButtonLabel getBtn7() {
-		return btn7;
-	}
-
-	public void setBtn7(ButtonLabel btn7) {
-		this.btn7 = btn7;
-	}
-
-	public ButtonLabel getBtn8() {
-		return btn8;
-	}
-
-	public void setBtn8(ButtonLabel btn8) {
-		this.btn8 = btn8;
-	}
-
-	public AtmBackground getAtmBackground() {
-		return atmBackground;
-	}
-
-	public void setAtmBackground(AtmBackground atmBackground) {
-		this.atmBackground = atmBackground;
-	}
 }

@@ -1,20 +1,28 @@
 package com.payten.service;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.payten.crm.model.CRMCampaign;
 import com.payten.crm.model.CRMResponse;
 import com.payten.termhost.model.AtmBackground;
 import com.payten.termhost.model.ButtonLabel;
+import com.payten.termhost.model.CampResolution;
+import com.payten.termhost.model.CampaignDTO;
+import com.payten.termhost.model.CampaignDefinitionDTO;
+import com.payten.termhost.model.CampaignDefinitions;
 import com.payten.termhost.model.CampaignRule;
 import com.payten.termhost.model.OnUSCampaignDTO;
 import com.payten.termhost.model.THCampaign;
 import com.payten.termhost.repository.AtmBackgroundRepository;
 import com.payten.termhost.repository.ButtonLabelRepository;
+import com.payten.termhost.repository.CampResolutionRepository;
+import com.payten.termhost.repository.CampaignDefinitionRepository;
 import com.payten.termhost.repository.CampaignRuleRepository;
 import com.payten.termhost.repository.THCampaignRepository;
 
@@ -25,16 +33,19 @@ public class THService implements ITHService {
 	private final CampaignRuleRepository campaignRuleRepository;
 	private final AtmBackgroundRepository atmBackgroundRepository;
 	private final ButtonLabelRepository buttonLabelRepository;
-
+	private final CampaignDefinitionRepository campaignDefinitionRepository;
+	private final CampResolutionRepository campResolutionRepository;
+	
 	@Autowired
-	public THService(THCampaignRepository thCampaignRepository
-			       , CampaignRuleRepository campaignRuleRepository
-			       , AtmBackgroundRepository atmBackgroundRepository
-			       , ButtonLabelRepository buttonLabelRepository) {
+	public THService(THCampaignRepository thCampaignRepository, CampaignRuleRepository campaignRuleRepository,
+			AtmBackgroundRepository atmBackgroundRepository, ButtonLabelRepository buttonLabelRepository,
+			CampaignDefinitionRepository campaignDefinitionRepository, CampResolutionRepository campResolutionRepository) {
 		this.thCampaignRepository = thCampaignRepository;
 		this.campaignRuleRepository = campaignRuleRepository;
 		this.atmBackgroundRepository = atmBackgroundRepository;
 		this.buttonLabelRepository = buttonLabelRepository;
+		this.campaignDefinitionRepository = campaignDefinitionRepository;
+		this.campResolutionRepository =  campResolutionRepository;
 	}
 
 	@Override
@@ -57,21 +68,10 @@ public class THService implements ITHService {
 
 		result.setCampaignId(campaign.getCampaignId());
 		result.setCampaignName(campaign.getCampaignName());
-		result.setCampaignStart(campaign.getCampaignStart());
-		result.setCampaignEnd(campaign.getCampaignEnd());
+		// result.setCampaignStart(campaign.getCampaignStart());
+		// result.setCampaignEnd(campaign.getCampaignEnd());
 		result.setCampaignText(campaign.getCampaignText());
 		result.setCampaignDescription(campaign.getCampaignDescription());
-
-		result.setF1(campaign.getBtn1() != null ? campaign.getBtn1().getButtonLabelCode() : "");
-		result.setF2(campaign.getBtn2() != null ? campaign.getBtn2().getButtonLabelCode() : "");
-		result.setF3(campaign.getBtn3() != null ? campaign.getBtn3().getButtonLabelCode() : "");
-		result.setF4(campaign.getBtn4() != null ? campaign.getBtn4().getButtonLabelCode() : "");
-		result.setF5(campaign.getBtn5() != null ? campaign.getBtn5().getButtonLabelCode() : "");
-		result.setF6(campaign.getBtn6() != null ? campaign.getBtn6().getButtonLabelCode() : "");
-		result.setF7(campaign.getBtn7() != null ? campaign.getBtn7().getButtonLabelCode() : "");
-		result.setF8(campaign.getBtn8() != null ? campaign.getBtn8().getButtonLabelCode() : "");
-
-		result.setImageId(campaign.getAtmBackground() != null ? campaign.getAtmBackground().getImageId() : 0);
 
 		return result;
 	}
@@ -99,14 +99,13 @@ public class THService implements ITHService {
 	}
 
 	@Override
-	public THCampaign saveCampaign(OnUSCampaignDTO campaign, String crmCampaignId, List<CRMResponse> responses) {
+	public THCampaign saveCampaign(CampaignDTO campaign, String crmCampaignId, List<CRMResponse> responses) {
 		THCampaign newTHCampaign = new THCampaign();
 
 		if (campaign.getCampaignId() != null) {
 			// update existing
 			THCampaign oldTHCampaign = thCampaignRepository.getOne(campaign.getCampaignId());
-			if(oldTHCampaign != null)
-			{
+			if (oldTHCampaign != null) {
 				newTHCampaign.setCampaignId(oldTHCampaign.getCampaignId());
 			}
 		}
@@ -115,56 +114,85 @@ public class THService implements ITHService {
 		newTHCampaign.setCampaignText(campaign.getCampaignText());
 		newTHCampaign.setCampaignStart(campaign.getCampaignStart());
 		newTHCampaign.setCampaignEnd(campaign.getCampaignEnd());
-
-		newTHCampaign.setAtmBackground(atmBackgroundRepository.getOne(campaign.getImageId()));
-
-		newTHCampaign.setBtn1(getButtonId(campaign.getF1(), responses));
-		newTHCampaign.setBtn2(getButtonId(campaign.getF2(), responses));
-		newTHCampaign.setBtn3(getButtonId(campaign.getF3(), responses));
-		newTHCampaign.setBtn4(getButtonId(campaign.getF4(), responses));
-		newTHCampaign.setBtn5(getButtonId(campaign.getF5(), responses));
-		newTHCampaign.setBtn6(getButtonId(campaign.getF6(), responses));
-		newTHCampaign.setBtn7(getButtonId(campaign.getF7(), responses));
-		newTHCampaign.setBtn8(getButtonId(campaign.getF8(), responses));
+		newTHCampaign.setContactCollecting(campaign.isContactCollecting());
 
 		newTHCampaign = thCampaignRepository.save(newTHCampaign);
+
+		saveCampaignRule(newTHCampaign.getCampaignId(), campaign.getExternalId());
+
 		
-		saveCampaignRule(newTHCampaign.getCampaignId(), crmCampaignId);
+		for (CampaignDefinitionDTO definition : campaign.getDefinitions()) {
+			if(definition.getCampaignId() == 0)
+			{
+				definition.setCampaignId(newTHCampaign.getCampaignId());
+			}
+			
+			saveDefinition(definition, responses);
+		}
 		
 		return newTHCampaign;
 	}
 
-	private void saveCampaignRule(Integer campaingId, String externalId)
-	{
+	private void saveDefinition(CampaignDefinitionDTO definition, List<CRMResponse> responses) {
+		CampaignDefinitions newDefinition = new CampaignDefinitions();
+		if (definition.getDefinitionId() != 0) {
+			newDefinition = campaignDefinitionRepository.getOne(definition.getDefinitionId());
+		}
+		
+		AtmBackground background = atmBackgroundRepository.getOne(definition.getImageId());
+		CampResolution resolution = campResolutionRepository.getOne(definition.getResolutionId());
+		
+		
+		ButtonLabel b1 = getButtonId(definition.getF1(), responses);
+		ButtonLabel b2 = getButtonId(definition.getF2(), responses);
+		ButtonLabel b3 = getButtonId(definition.getF3(), responses);
+		ButtonLabel b4 = getButtonId(definition.getF4(), responses);
+		ButtonLabel b5 = getButtonId(definition.getF5(), responses);
+		ButtonLabel b6 = getButtonId(definition.getF6(), responses);
+		ButtonLabel b7 = getButtonId(definition.getF7(), responses);
+		ButtonLabel b8 = getButtonId(definition.getF8(), responses);
+		
+		newDefinition.setCampaignId(definition.getCampaignId());
+		newDefinition.setAtmBackground(background);
+		newDefinition.setResolution(resolution);
+		
+		newDefinition.setBtn1(b1);
+		newDefinition.setBtn2(b2);
+		newDefinition.setBtn3(b3);
+		newDefinition.setBtn4(b4);
+		newDefinition.setBtn5(b5);
+		newDefinition.setBtn6(b6);
+		newDefinition.setBtn7(b7);
+		newDefinition.setBtn8(b8);
+		
+		campaignDefinitionRepository.save(newDefinition);
+	}
+
+	private void saveCampaignRule(Integer campaingId, String externalId) {
 		CampaignRule campaignRule = campaignRuleRepository.getCampaignRUleByExternalId(externalId);
-		if(campaignRule == null)
-		{
+		if (campaignRule == null) {
 			campaignRule = new CampaignRule();
 			campaignRule.setExternalId(externalId);
 		}
-		
+
 		campaignRule.setCampaignId(campaingId);
-		
+
 		campaignRule = campaignRuleRepository.save(campaignRule);
 	}
-	
-	private ButtonLabel getButtonId(String buttonCode, List<CRMResponse> responses)
-	{
-		// if code is not set
-		// 
-		if(buttonCode.equals(""))
-		{
+
+	private ButtonLabel getButtonId(String buttonCode, List<CRMResponse> responses) { 
+		
+		// if code is not set //
+		if (buttonCode == null || buttonCode.equals("")) {
 			return null;
 		}
-		
+
 		ButtonLabel buttonLabel = buttonLabelRepository.getButtonLabelByButtonLabelCode(buttonCode);
 		// buttonLabel not found in database
 		// add new buttonLabel
-		if(buttonLabel == null)
-		{
+		if (buttonLabel == null) {
 			for (CRMResponse crmResponse : responses) {
-				if(crmResponse.getResponseId().equals(buttonCode))
-				{
+				if (crmResponse.getResponseId().equals(buttonCode)) {
 					buttonLabel = new ButtonLabel();
 					buttonLabel.setButtonLabelCode(buttonCode);
 					buttonLabel.setButtonLabelText(crmResponse.getResponseName());
@@ -176,6 +204,97 @@ public class THService implements ITHService {
 		return buttonLabel;
 	}
 
+	@Override
+	public CampaignDTO getCampaingByExternaelID(CRMCampaign crmCampaign) {
+		THCampaign campaign = null;
+		CampaignDTO result = new CampaignDTO();
+		CampaignRule rule = campaignRuleRepository.getCampaignRUleByExternalId(crmCampaign.getCampaignId());
+		if (rule != null) {
+			campaign = thCampaignRepository.getTHCampaignByCampaignId(rule.getCampaignId());
+		} else {
+			campaign = new THCampaign();
+			campaign.setCampaignDescription(crmCampaign.getCampaignDesc());
+			campaign.setCampaignName(crmCampaign.getCampaignName());
+			campaign.setCampaignStart(crmCampaign.getStartDate());
+			campaign.setCampaignEnd(crmCampaign.getEndDate());
+			campaign.setContactCollecting(false);
 
-	
+		}
+
+		result.setExternalId(crmCampaign.getCampaignId());
+
+		result.setCampaignId(campaign.getCampaignId());
+		result.setCampaignName(campaign.getCampaignName());
+		result.setCampaignStart(campaign.getCampaignStart());
+		result.setCampaignEnd(campaign.getCampaignEnd());
+		result.setCampaignText(campaign.getCampaignText());
+		result.setCampaignDescription(campaign.getCampaignDescription());
+		result.setContactCollecting(campaign.isContactCollecting());
+
+		List<CampaignDefinitionDTO> definitions = new ArrayList<CampaignDefinitionDTO>();
+
+		if (campaign != null && campaign.getDefinitions() != null) {
+			for (CampaignDefinitions definition : campaign.getDefinitions()) {
+				CampaignDefinitionDTO cDefinition = new CampaignDefinitionDTO();
+				cDefinition.setCampaignId(definition.getCampaignId());
+
+				if (definition.getAtmBackground() != null) {
+					cDefinition.setImageId(definition.getAtmBackground().getImageId());
+				}
+
+				if (definition.getResolution() != null) {
+					cDefinition.setResolutionId(definition.getResolution().getResolutionId());
+				}
+
+				if (definition.getBtn1() != null) {
+					cDefinition.setF1(definition.getBtn1().getButtonLabelCode());
+				}
+
+				if (definition.getBtn2() != null) {
+					cDefinition.setF2(definition.getBtn2().getButtonLabelCode());
+				}
+
+				if (definition.getBtn3() != null) {
+					cDefinition.setF3(definition.getBtn3().getButtonLabelCode());
+				}
+
+				if (definition.getBtn4() != null) {
+					cDefinition.setF4(definition.getBtn4().getButtonLabelCode());
+				}
+
+				if (definition.getBtn5() != null) {
+					cDefinition.setF5(definition.getBtn5().getButtonLabelCode());
+				}
+
+				if (definition.getBtn6() != null) {
+					cDefinition.setF6(definition.getBtn7().getButtonLabelCode());
+				}
+
+				if (definition.getBtn7() != null) {
+					cDefinition.setF7(definition.getBtn7().getButtonLabelCode());
+				}
+
+				if (definition.getBtn8() != null) {
+					cDefinition.setF8(definition.getBtn8().getButtonLabelCode());
+				}
+
+				if (definition.getResolution() != null) {
+					cDefinition.setResolutionId(definition.getResolution().getResolutionId());
+				}
+
+				cDefinition.setDefinitionId(definition.getDefinitionId());
+
+				cDefinition.setCampaignText(campaign.getCampaignText());
+
+				definitions.add(cDefinition);
+				System.out.println(definition.toString());
+			}
+		}
+		result.setDefinitions(definitions);
+
+		System.out.println(crmCampaign.toString());
+		System.out.println(result.toString());
+		return result;
+	}
+
 }

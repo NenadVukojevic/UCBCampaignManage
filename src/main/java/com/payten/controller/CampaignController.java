@@ -18,11 +18,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.payten.crm.model.CRMCampaign;
 import com.payten.crm.model.CRMCampaignDto;
 import com.payten.crm.model.CRMResponse;
 import com.payten.service.ICRMService;
 import com.payten.service.ITHService;
 import com.payten.termhost.model.AtmBackground;
+import com.payten.termhost.model.CampaignDTO;
 import com.payten.termhost.model.OnUSCampaignDTO;
 import com.payten.termhost.model.THCampaign;
 
@@ -66,6 +68,12 @@ public class CampaignController {
 		return details;
 	}
 
+	@GetMapping("/campaign/{id}")
+	CampaignDTO getCampaign(@PathVariable String id) {
+		CRMCampaign crmCampaign = crmService.getCRMCampaign(id);
+		return thService.getCampaingByExternaelID(crmCampaign);
+	}
+	
 	@PostMapping("/campaigns/image")
 	AtmBackground uploadImage(@RequestParam("file") MultipartFile file) {
 		return thService.insertAtmBackground(file);
@@ -88,10 +96,19 @@ public class CampaignController {
 		return campaign;
 	}
 
-	@PutMapping(value = "/campaigns/{crmCampaignId}")
-	public THCampaign saveCampaign(@RequestBody OnUSCampaignDTO campaign, @PathVariable String crmCampaignId) {
+	@PutMapping(value = "/campaigns_old/{crmCampaignId}")
+	public THCampaign saveCampaign_old(@RequestBody OnUSCampaignDTO campaign, @PathVariable String crmCampaignId) {
 		List<CRMResponse> responses = crmService.getCRMResponsesForCampaign(crmCampaignId);
 		THCampaign newCampaign = new THCampaign();
+		//newCampaign = thService.saveCampaign(campaign, crmCampaignId, responses);
+		return newCampaign;
+	}
+	
+	@PutMapping(value = "/campaigns/{crmCampaignId}")
+	public THCampaign saveCampaign(@RequestBody CampaignDTO campaign, @PathVariable String crmCampaignId) {
+		List<CRMResponse> responses = crmService.getCRMResponsesForCampaign(crmCampaignId);
+		THCampaign newCampaign = new THCampaign();
+		System.out.println(campaign);
 		newCampaign = thService.saveCampaign(campaign, crmCampaignId, responses);
 		return newCampaign;
 	}

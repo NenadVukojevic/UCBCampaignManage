@@ -81,6 +81,12 @@ public class CRMCampaign {
 	public void setEndDate(Date endDate) {
 		this.endDate = endDate;
 	}
+
+	@Override
+	public String toString() {
+		return "CRMCampaign [campaignId=" + campaignId + ", campaignName=" + campaignName + ", campaignDesc="
+				+ campaignDesc + ", startDate=" + startDate + ", endDate=" + endDate + "]";
+	}
 	
 	
 }

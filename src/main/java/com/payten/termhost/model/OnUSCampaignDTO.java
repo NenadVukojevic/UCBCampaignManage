@@ -1,6 +1,6 @@
 package com.payten.termhost.model;
 
-import java.util.Date;
+import java.sql.Date;
 
 public class OnUSCampaignDTO {
 	private Integer campaignId;
