@@ -57,6 +57,12 @@ public class ButtonLabel {
 	public void setButtonLabelText(String buttonLabelText) {
 		this.buttonLabelText = buttonLabelText;
 	}
+
+	@Override
+	public String toString() {
+		return "ButtonLabel [buttonLabelId=" + buttonLabelId + ", buttonLabelCode=" + buttonLabelCode
+				+ ", buttonLabelText=" + buttonLabelText + "]";
+	}
 	
 	
 }

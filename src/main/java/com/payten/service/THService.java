@@ -134,6 +134,12 @@ public class THService implements ITHService {
 	}
 
 	private void saveDefinition(CampaignDefinitionDTO definition, List<CRMResponse> responses) {
+		
+		if(definition.getImageId() == 0)
+		{
+			return;
+		}
+		
 		CampaignDefinitions newDefinition = new CampaignDefinitions();
 		if (definition.getDefinitionId() != 0) {
 			newDefinition = campaignDefinitionRepository.getOne(definition.getDefinitionId());
@@ -187,19 +193,27 @@ public class THService implements ITHService {
 			return null;
 		}
 
+		System.out.println(buttonCode);
 		ButtonLabel buttonLabel = buttonLabelRepository.getButtonLabelByButtonLabelCode(buttonCode);
+		
 		// buttonLabel not found in database
 		// add new buttonLabel
 		if (buttonLabel == null) {
 			for (CRMResponse crmResponse : responses) {
+				System.out.println(crmResponse.toString());
 				if (crmResponse.getResponseId().equals(buttonCode)) {
 					buttonLabel = new ButtonLabel();
 					buttonLabel.setButtonLabelCode(buttonCode);
 					buttonLabel.setButtonLabelText(crmResponse.getResponseName());
 					buttonLabel = buttonLabelRepository.save(buttonLabel);
+					System.out.println(buttonLabel.toString());
 					break;
 				}
 			}
+		}
+		else
+		{
+			System.out.println(buttonLabel.toString());
 		}
 		return buttonLabel;
 	}
@@ -224,11 +238,51 @@ public class THService implements ITHService {
 		result.setExternalId(crmCampaign.getCampaignId());
 
 		result.setCampaignId(campaign.getCampaignId());
-		result.setCampaignName(campaign.getCampaignName());
-		result.setCampaignStart(campaign.getCampaignStart());
-		result.setCampaignEnd(campaign.getCampaignEnd());
-		result.setCampaignText(campaign.getCampaignText());
-		result.setCampaignDescription(campaign.getCampaignDescription());
+		if(campaign.getCampaignName() != null)
+		{
+			result.setCampaignName(campaign.getCampaignName());
+		}
+		else
+		{
+			result.setCampaignName(crmCampaign.getCampaignName());
+		}
+		
+		if(campaign.getCampaignStart()!=null)
+		{
+			result.setCampaignStart(campaign.getCampaignStart());
+		}
+		else
+		{
+			result.setCampaignStart(crmCampaign.getStartDate());
+		}
+		
+		if(campaign.getCampaignEnd()!=null)
+		{
+			result.setCampaignEnd(campaign.getCampaignEnd());
+		}
+		else
+		{
+			result.setCampaignEnd(crmCampaign.getEndDate());
+		}
+		
+		if(campaign.getCampaignDescription()!=null)
+		{
+			result.setCampaignDescription(campaign.getCampaignDescription());
+		}
+		else
+		{
+			result.setCampaignDescription(crmCampaign.getCampaignDesc());
+		}
+		
+		if(campaign.getCampaignText() != null)
+		{
+			result.setCampaignText(campaign.getCampaignText());
+		}
+		else
+		{
+			result.setCampaignText("");
+		}
+		
 		result.setContactCollecting(campaign.isContactCollecting());
 
 		List<CampaignDefinitionDTO> definitions = new ArrayList<CampaignDefinitionDTO>();

@@ -1,42 +1,39 @@
-package com.payten.termhost.model;
+package com.payten.termhost.model.offus.dto;
 
-import java.util.Date;
+import java.sql.Date;
 import java.util.List;
 
-public class CampaignDTO {
+public class OffUsCampaignDTO {
 
 	private Integer campaignId;
 	private String campaignName;
 	private String campaignDescription;
 	private Date campaignStart;
 	private Date campaignEnd;
-	private String campaignText;
-	private String externalId;
 	private Integer campaignStatus;
-	private String collectingText;
+	private String campaignText;
 	private boolean contactCollecting;
+	private String collectingText;
+	private List<OffUsDefinitionsDTO> definitions;
 
-	private List<CampaignDefinitionDTO> definitions;
+	public OffUsCampaignDTO() {
+		super();
+	}
 
-	public CampaignDTO(Integer campaignId, String campaignName, String campaignDescription, Date campaignStart,
-			Date campaignEnd, String campaignText, String externalId, Integer campaignStatus, String collectingText,
-			boolean contactCollecting, List<CampaignDefinitionDTO> definitions) {
+	public OffUsCampaignDTO(Integer campaignId, String campaignName, String campaignDescription, Date campaignStart,
+			Date campaignEnd, Integer campaignStatus, String campaignText, boolean contactCollecting,
+			String collectingText, List<OffUsDefinitionsDTO> definitions) {
 		super();
 		this.campaignId = campaignId;
 		this.campaignName = campaignName;
 		this.campaignDescription = campaignDescription;
 		this.campaignStart = campaignStart;
 		this.campaignEnd = campaignEnd;
-		this.campaignText = campaignText;
-		this.externalId = externalId;
 		this.campaignStatus = campaignStatus;
-		this.collectingText = collectingText;
+		this.campaignText = campaignText;
 		this.contactCollecting = contactCollecting;
+		this.collectingText = collectingText;
 		this.definitions = definitions;
-	}
-
-	public CampaignDTO() {
-		super();
 	}
 
 	public Integer getCampaignId() {
@@ -79,20 +76,20 @@ public class CampaignDTO {
 		this.campaignEnd = campaignEnd;
 	}
 
+	public Integer getCampaignStatus() {
+		return campaignStatus;
+	}
+
+	public void setCampaignStatus(Integer campaignStatus) {
+		this.campaignStatus = campaignStatus;
+	}
+
 	public String getCampaignText() {
 		return campaignText;
 	}
 
 	public void setCampaignText(String campaignText) {
 		this.campaignText = campaignText;
-	}
-
-	public List<CampaignDefinitionDTO> getDefinitions() {
-		return definitions;
-	}
-
-	public void setDefinitions(List<CampaignDefinitionDTO> definitions) {
-		this.definitions = definitions;
 	}
 
 	public boolean isContactCollecting() {
@@ -103,22 +100,6 @@ public class CampaignDTO {
 		this.contactCollecting = contactCollecting;
 	}
 
-	public String getExternalId() {
-		return externalId;
-	}
-
-	public void setExternalId(String externalId) {
-		this.externalId = externalId;
-	}
-
-	public Integer getCampaignStatus() {
-		return campaignStatus;
-	}
-
-	public void setCampaignStatus(Integer campaignStatus) {
-		this.campaignStatus = campaignStatus;
-	}
-
 	public String getCollectingText() {
 		return collectingText;
 	}
@@ -127,15 +108,21 @@ public class CampaignDTO {
 		this.collectingText = collectingText;
 	}
 
-	@Override
-	public String toString() {
-		return "CampaignDTO [campaignId=" + campaignId + ", campaignName=" + campaignName + ", campaignDescription="
-				+ campaignDescription + ", campaignStart=" + campaignStart + ", campaignEnd=" + campaignEnd
-				+ ", campaignText=" + campaignText + ", externalId=" + externalId + ", campaignStatus=" + campaignStatus
-				+ ", collectingText=" + collectingText + ", contactCollecting=" + contactCollecting + ", definitions="
-				+ definitions + "]";
+	public List<OffUsDefinitionsDTO> getDefinitions() {
+		return definitions;
 	}
 
+	public void setDefinitions(List<OffUsDefinitionsDTO> definitions) {
+		this.definitions = definitions;
+	}
 
+	@Override
+	public String toString() {
+		return "OffUsCampaignDTO [campaignId=" + campaignId + ", campaignName=" + campaignName
+				+ ", campaignDescription=" + campaignDescription + ", campaignStart=" + campaignStart + ", campaignEnd="
+				+ campaignEnd + ", campaignStatus=" + campaignStatus + ", campaignText=" + campaignText
+				+ ", contactCollecting=" + contactCollecting + ", collectingText=" + collectingText + ", definitions="
+				+ definitions + "]";
+	}
 
 }

@@ -107,8 +107,9 @@ public class CampaignController {
 	@PutMapping(value = "/campaigns/{crmCampaignId}")
 	public THCampaign saveCampaign(@RequestBody CampaignDTO campaign, @PathVariable String crmCampaignId) {
 		List<CRMResponse> responses = crmService.getCRMResponsesForCampaign(crmCampaignId);
+		
 		THCampaign newCampaign = new THCampaign();
-		System.out.println(campaign);
+		System.out.println(responses);
 		newCampaign = thService.saveCampaign(campaign, crmCampaignId, responses);
 		return newCampaign;
 	}
