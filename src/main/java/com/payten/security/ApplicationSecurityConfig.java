@@ -1,7 +1,5 @@
 package com.payten.security;
 
-import static com.payten.security.ApplicationUserRole.STUDENT;
-
 import java.util.Arrays;
 
 import javax.crypto.SecretKey;

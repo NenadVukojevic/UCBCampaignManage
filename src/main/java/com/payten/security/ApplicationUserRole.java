@@ -1,13 +1,16 @@
 package com.payten.security;
 
-import com.google.common.collect.Sets;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import static com.payten.security.ApplicationUserPermission.COURSE_READ;
+import static com.payten.security.ApplicationUserPermission.COURSE_WRITE;
+import static com.payten.security.ApplicationUserPermission.STUDENT_READ;
+import static com.payten.security.ApplicationUserPermission.STUDENT_WRITE;
 
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.payten.security.ApplicationUserPermission.*;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+
+import com.google.common.collect.Sets;
 
 public enum ApplicationUserRole {
     STUDENT(Sets.newHashSet()),
