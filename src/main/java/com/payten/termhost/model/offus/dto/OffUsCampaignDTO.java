@@ -16,13 +16,17 @@ public class OffUsCampaignDTO {
 	private String collectingText;
 	private List<OffUsDefinitionsDTO> definitions;
 
+	private List<Integer> binRangesGroups;
+	private List<Integer> terminalGroups;
+
 	public OffUsCampaignDTO() {
 		super();
 	}
 
 	public OffUsCampaignDTO(Integer campaignId, String campaignName, String campaignDescription, Date campaignStart,
 			Date campaignEnd, Integer campaignStatus, String campaignText, boolean contactCollecting,
-			String collectingText, List<OffUsDefinitionsDTO> definitions) {
+			String collectingText, List<OffUsDefinitionsDTO> definitions, List<Integer> binRangesGroups,
+			List<Integer> terminalGroups) {
 		super();
 		this.campaignId = campaignId;
 		this.campaignName = campaignName;
@@ -34,6 +38,8 @@ public class OffUsCampaignDTO {
 		this.contactCollecting = contactCollecting;
 		this.collectingText = collectingText;
 		this.definitions = definitions;
+		this.binRangesGroups = binRangesGroups;
+		this.terminalGroups = terminalGroups;
 	}
 
 	public Integer getCampaignId() {
@@ -116,13 +122,29 @@ public class OffUsCampaignDTO {
 		this.definitions = definitions;
 	}
 
+	public List<Integer> getBinRangesGroups() {
+		return binRangesGroups;
+	}
+
+	public void setBinRangesGroups(List<Integer> binRangesGroups) {
+		this.binRangesGroups = binRangesGroups;
+	}
+
+	public List<Integer> getTerminalGroups() {
+		return terminalGroups;
+	}
+
+	public void setTerminalGroups(List<Integer> terminalGroups) {
+		this.terminalGroups = terminalGroups;
+	}
+
 	@Override
 	public String toString() {
 		return "OffUsCampaignDTO [campaignId=" + campaignId + ", campaignName=" + campaignName
 				+ ", campaignDescription=" + campaignDescription + ", campaignStart=" + campaignStart + ", campaignEnd="
 				+ campaignEnd + ", campaignStatus=" + campaignStatus + ", campaignText=" + campaignText
 				+ ", contactCollecting=" + contactCollecting + ", collectingText=" + collectingText + ", definitions="
-				+ definitions + "]";
+				+ definitions + ", binRangesGroups=" + binRangesGroups + ", terminalGroups=" + terminalGroups + "]";
 	}
 
 }

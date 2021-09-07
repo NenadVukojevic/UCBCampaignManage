@@ -2,11 +2,14 @@ package com.payten.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.payten.termhost.model.CampaignStatus;
+import com.payten.termhost.model.offus.CampaignBinRangeGroup;
+import com.payten.termhost.model.offus.CampaignTerminalGroups;
 import com.payten.termhost.model.offus.OffUsCampaign;
 import com.payten.termhost.model.offus.OffUsDefinitions;
 import com.payten.termhost.model.offus.OffUsResponses;
@@ -15,7 +18,9 @@ import com.payten.termhost.model.offus.dto.OffUsCampaignDTO;
 import com.payten.termhost.model.offus.dto.OffUsDefinitionsDTO;
 import com.payten.termhost.repository.AtmBackgroundRepository;
 import com.payten.termhost.repository.CampResolutionRepository;
+import com.payten.termhost.repository.CampaignBinRangeGroupRepository;
 import com.payten.termhost.repository.CampaignStatusRepository;
+import com.payten.termhost.repository.CampaignTerminalGroupsRepository;
 import com.payten.termhost.repository.offus.OffUsCampaignRepository;
 import com.payten.termhost.repository.offus.OffUsDefinitionsRepository;
 import com.payten.termhost.repository.offus.OffUsResponsesRepository;
@@ -40,6 +45,12 @@ public class OffUsCampaignsService implements IOffUsCampaignsService {
 
 	@Autowired
 	CampResolutionRepository campResolutionRepository;
+
+	@Autowired
+	CampaignBinRangeGroupRepository campaignBinRangeGroupRepository;
+
+	@Autowired
+	CampaignTerminalGroupsRepository campaignTerminalGroupsRepository;
 
 	@Override
 	public List<OffUsCampaignDTO> getCampaigns() {
@@ -86,20 +97,16 @@ public class OffUsCampaignsService implements IOffUsCampaignsService {
 	}
 
 	private OffUsCampaign convertCampaignDTO(OffUsCampaignDTO campaignDTO) {
-		
+
 		OffUsCampaign campaign = null;
-		if(campaignDTO.getCampaignId() == null)
-			//or campaignDto.getCampaignId() == 0)
+		if (campaignDTO.getCampaignId() == null)
+		// or campaignDto.getCampaignId() == 0)
 		{
 			campaign = new OffUsCampaign();
-		}
-		else
-		{
+		} else {
 			campaign = offUsCampaignRepository.getOne(campaignDTO.getCampaignId());
-			System.out.println("convertCampaignDTO: get by ID " + campaignDTO.getCampaignId() + " :->" + campaign.toString()) ;
 		}
-		
-		
+
 		campaign.setCampaignName(campaignDTO.getCampaignName());
 		campaign.setCampaignDescription(campaignDTO.getCampaignDescription());
 		campaign.setCampaignStart(campaignDTO.getCampaignStart());
@@ -110,33 +117,29 @@ public class OffUsCampaignsService implements IOffUsCampaignsService {
 		campaign.setCampaignStatus(campaignStatusRepository.getOne(campaignDTO.getCampaignStatus()));
 		campaign.setCampaignId(campaignDTO.getCampaignId());
 
-		/*
-		for (OffUsDefinitionsDTO definitionDTO : campaignDTO.getDefinitions()) {
-			OffUsDefinitions newDefinition = convertDefinitionsDTO(definitionDTO);
-			System.out.println(newDefinition);
-			campaign.getDefinitions().add(newDefinition);
-		}
-		*/
 		return campaign;
 	}
 
 	private OffUsDefinitions convertDefinitionsDTO(OffUsDefinitionsDTO definitionDTO) {
-		
+
 		OffUsDefinitions definitions = null;
-		
-		System.out.println("convertDefinitionsDTO: " + definitionDTO.getDefinitionId());
-		
-		if(definitionDTO.getDefinitionId() == 0)
-		{
+
+		if (definitionDTO.getDefinitionId() == 0) {
 			definitions = new OffUsDefinitions();
-		}
-		else
-		{
+		} else {
 			definitions = offUsDefinitionsRepository.getOne(definitionDTO.getDefinitionId());
-			System.out.println("Definition with id: " + definitionDTO.getDefinitionId()  +  " from database" +  definitions);
+			definitions.setBtn1(null);
+			definitions.setBtn2(null);
+			definitions.setBtn3(null);
+			definitions.setBtn4(null);
+			definitions.setBtn5(null);
+			definitions.setBtn6(null);
+			definitions.setBtn7(null);
+			definitions.setBtn8(null);
+			definitions.setAtmBackground(null);
 		}
-		
-		//definitions.setCampDefinitionId(definitionDTO.getDefinitionId());
+
+		// definitions.setCampDefinitionId(definitionDTO.getDefinitionId());
 
 		if (definitionDTO.getF1() != 0) {
 			definitions.setBtn1(offUsResponsesRepository.getOne(definitionDTO.getF1()));
@@ -180,9 +183,8 @@ public class OffUsCampaignsService implements IOffUsCampaignsService {
 	private OffUsDefinitionsDTO convertDefinition(OffUsDefinitions offUsDefinitions) {
 		OffUsDefinitionsDTO dto = new OffUsDefinitionsDTO();
 
-
 		dto.setResolutionId(offUsDefinitions.getResolution().getResolutionId());
-		
+
 		dto.setDefinitionId(offUsDefinitions.getCampDefinitionId());
 
 		if (offUsDefinitions.getAtmBackground() != null) {
@@ -198,7 +200,7 @@ public class OffUsCampaignsService implements IOffUsCampaignsService {
 		}
 
 		if (offUsDefinitions.getBtn2() != null) {
-			dto.setF2(offUsDefinitions.getBtn2().getResponseId()	);
+			dto.setF2(offUsDefinitions.getBtn2().getResponseId());
 		} else {
 			dto.setF2(0);
 		}
@@ -295,20 +297,77 @@ public class OffUsCampaignsService implements IOffUsCampaignsService {
 
 	@Override
 	public OffUsCampaignDTO insertCampaign(OffUsCampaignDTO campaign) {
-		System.out.println(campaign);
+
 		OffUsCampaign newCampaign = convertCampaignDTO(campaign);
+
 		OffUsCampaign savedCampaign = offUsCampaignRepository.save(newCampaign);
+
 		
+		List<OffUsDefinitions> defs = new ArrayList<OffUsDefinitions>();
 		
 		for (OffUsDefinitionsDTO definitionDTO : campaign.getDefinitions()) {
 			OffUsDefinitions newDefinition = convertDefinitionsDTO(definitionDTO);
-			System.out.println(newDefinition);
-			savedCampaign.getDefinitions().add(newDefinition);
+			defs.add(newDefinition);
 		}
 
+		savedCampaign.setDefinitions(defs);
 		savedCampaign = offUsCampaignRepository.save(savedCampaign);
+
 		
-		OffUsCampaignDTO result = convertCampaign(savedCampaign, true);
+		List<CampaignBinRangeGroup> existingGroups = campaignBinRangeGroupRepository
+				.findByCampaignId(campaign.getCampaignId());
+
+		List<CampaignBinRangeGroup> newGroups = new ArrayList<CampaignBinRangeGroup>();
+
+		for (Integer binRangeId : campaign.getBinRangesGroups()) {
+			newGroups.add(new CampaignBinRangeGroup(savedCampaign.getCampaignId(), binRangeId));
+
+		}
+
+		List<CampaignBinRangeGroup> removed = existingGroups.stream().filter(
+				o1 -> newGroups.stream().noneMatch(o2 -> o2.getBinRangeGroupId().equals(o1.getBinRangeGroupId())))
+				.collect(Collectors.toList());
+
+		List<CampaignBinRangeGroup> added = newGroups.stream().filter(
+				o1 -> existingGroups.stream().noneMatch(o2 -> o2.getBinRangeGroupId().equals(o1.getBinRangeGroupId())))
+				.collect(Collectors.toList());
+
+		for (CampaignBinRangeGroup group : removed) {
+			campaignBinRangeGroupRepository.delete(group);
+		}
+
+		for (CampaignBinRangeGroup group : added) {
+			campaignBinRangeGroupRepository.save(group);
+		}
+		
+		
+		
+		List<CampaignTerminalGroups> existingTerminalGroups = campaignTerminalGroupsRepository.findByCampaignId(campaign.getCampaignId());
+		List<CampaignTerminalGroups> newTerminalGroups = new ArrayList<CampaignTerminalGroups>();
+		
+		for(Integer terminalGroupId: campaign.getTerminalGroups()) {
+			newTerminalGroups.add(new CampaignTerminalGroups(campaign.getCampaignId(), terminalGroupId));
+		}
+
+		List<CampaignTerminalGroups> removedT = existingTerminalGroups.stream().filter(
+				o1 -> newTerminalGroups.stream().noneMatch(o2 -> o2.getTerminalGroupId().equals(o1.getTerminalGroupId())))
+				.collect(Collectors.toList());
+
+		List<CampaignTerminalGroups> addedT = newTerminalGroups.stream().filter(
+				o1 -> existingTerminalGroups.stream().noneMatch(o2 -> o2.getTerminalGroupId().equals(o1.getTerminalGroupId())))
+				.collect(Collectors.toList());
+
+		for(CampaignTerminalGroups terminalGroup: removedT) {
+			campaignTerminalGroupsRepository.delete(terminalGroup);
+		}
+		
+		for(CampaignTerminalGroups terminalGroup: addedT) {
+			campaignTerminalGroupsRepository.save(terminalGroup);
+		}
+		
+		
+		OffUsCampaignDTO result = getCampaign(savedCampaign.getCampaignId());
+
 		return result;
 	}
 
@@ -316,8 +375,25 @@ public class OffUsCampaignsService implements IOffUsCampaignsService {
 	public OffUsCampaignDTO getCampaign(Integer id) {
 		OffUsCampaign campaign = offUsCampaignRepository.getOne(id);
 		OffUsCampaignDTO result = convertCampaign(campaign, true);
+
+		// list of associated Bin Ranges ID
+		List<CampaignBinRangeGroup> binGroups = campaignBinRangeGroupRepository.findByCampaignId(id);
+		List<Integer> groups = new ArrayList<Integer>();
+		for (CampaignBinRangeGroup campaignBinRangeGroup : binGroups) {
+			groups.add(campaignBinRangeGroup.getBinRangeGroupId());
+		}
+		result.setBinRangesGroups(groups);
+
+		// list of associated Terminal Group ID
+		List<CampaignTerminalGroups> terminalGroups = campaignTerminalGroupsRepository.findByCampaignId(id);
+		List<Integer> groupsT = new ArrayList<Integer>();
+
+		for (CampaignTerminalGroups terminalGroup : terminalGroups) {
+			groupsT.add(terminalGroup.getTerminalGroupId());
+		}
+		result.setTerminalGroups(groupsT);
+
 		return result;
 	}
-	
-	
+
 }

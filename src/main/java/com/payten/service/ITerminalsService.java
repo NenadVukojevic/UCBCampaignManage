@@ -12,6 +12,7 @@ import com.payten.termhost.model.offus.TerminalGroupMembers;
 import com.payten.termhost.model.offus.Terminals;
 import com.payten.termhost.model.offus.dto.TerminalDTO;
 import com.payten.termhost.model.offus.dto.TerminalGroupDTO;
+import com.payten.termhost.repository.CampaignBinRangeGroupRepository;
 import com.payten.termhost.repository.TerminalGroupMembersRepository;
 import com.payten.termhost.repository.TerminalGroupRepository;
 import com.payten.termhost.repository.TerminalRepository;
@@ -27,6 +28,9 @@ public class ITerminalsService implements TerminalsService {
 
 	@Autowired
 	TerminalGroupMembersRepository terminalGroupMembersRepository;
+	
+	@Autowired
+	CampaignBinRangeGroupRepository campaignBinRangeGroupRepository;
 
 	@Override
 	public List<TerminalDTO> getListOfTerminals() {

@@ -79,6 +79,7 @@ public class OffUsController {
 	OffUsCampaignDTO addOffUsCampaign(@RequestBody OffUsCampaignDTO campaign) 
 	{
 		OffUsCampaignDTO response = offUsCampaignsService.insertCampaign(campaign);
+		System.out.println(response);
 		return response;
 	}
 }
