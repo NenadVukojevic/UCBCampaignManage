@@ -96,14 +96,6 @@ public class CampaignController {
 		return campaign;
 	}
 
-	/*
-	 * @PutMapping(value = "/campaigns_old/{crmCampaignId}") public THCampaign
-	 * saveCampaign_old(@RequestBody OnUSCampaignDTO campaign, @PathVariable String
-	 * crmCampaignId) { List<CRMResponse> responses =
-	 * crmService.getCRMResponsesForCampaign(crmCampaignId); THCampaign newCampaign
-	 * = new THCampaign(); //newCampaign = thService.saveCampaign(campaign,
-	 * crmCampaignId, responses); return newCampaign; }
-	 */
 	
 	@PutMapping(value = "/campaigns/{crmCampaignId}")
 	public THCampaign saveCampaign(@RequestBody CampaignDTO campaign, @PathVariable String crmCampaignId) {

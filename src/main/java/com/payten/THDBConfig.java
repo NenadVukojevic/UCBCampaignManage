@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @Configuration
 @EnableTransactionManagement
 @EnableJpaRepositories(entityManagerFactoryRef = "THEntityManagerFactory", transactionManagerRef = "THTransactionManager", basePackages = {
-		"com.payten.termhost.repository" })
+		"com.payten.termhost.repository", "com.payten.termhost.user.management.repository" })
 public class THDBConfig {
 	@Primary
 	@Bean(name = "THDataSource")
@@ -32,7 +32,7 @@ public class THDBConfig {
 	@Bean(name = "THEntityManagerFactory")
 	public LocalContainerEntityManagerFactoryBean thEntityManagerFactory(EntityManagerFactoryBuilder builder,
 			@Qualifier("THDataSource") DataSource dataSource) {
-		return builder.dataSource(dataSource).packages("com.payten.termhost.model").persistenceUnit("termhost").build();
+		return builder.dataSource(dataSource).packages("com.payten.termhost").persistenceUnit("termhost").build();
 	}
 
 	@Primary

@@ -3,6 +3,7 @@ package com.payten.service;
 import java.util.List;
 
 import com.payten.termhost.model.offus.TerminalGroup;
+import com.payten.termhost.model.offus.Terminals;
 import com.payten.termhost.model.offus.dto.TerminalDTO;
 import com.payten.termhost.model.offus.dto.TerminalGroupDTO;
 
@@ -16,5 +17,9 @@ public interface TerminalsService {
 	TerminalGroupDTO insertTerminalGroup(TerminalGroupDTO groupDTO);
 
 	TerminalGroupDTO updateTerminalGroup(TerminalGroupDTO groupDTO);
+
+	Terminals getTerminal(Integer id);
+
+	TerminalDTO addTerminal(TerminalDTO terminal);
 	
 }

@@ -9,6 +9,7 @@ public class OnUSCampaignDTO {
 	private Date campaignStart;
 	private Date campaignEnd;
 	private String campaignText;
+	private Integer campaignStatus;
 	private String f1;
 	private String f2;
 	private String f3;
@@ -23,7 +24,7 @@ public class OnUSCampaignDTO {
 		super();
 		campaignName = "";
 		campaignDescription = "";
-		campaignText ="";
+		campaignText = "";
 		f1 = "";
 		f2 = "";
 		f3 = "";
@@ -32,12 +33,12 @@ public class OnUSCampaignDTO {
 		f6 = "";
 		f7 = "";
 		f8 = "";
-		
+
 	}
 
 	public OnUSCampaignDTO(Integer campaignId, String campaignName, String campaignDescription, Date campaignStart,
-			Date campaignEnd, String campaignText, String f1, String f2, String f3, String f4, String f5, String f6,
-			String f7, String f8, int imageId) {
+			Date campaignEnd, String campaignText, Integer campaignStatus, String f1, String f2, String f3, String f4,
+			String f5, String f6, String f7, String f8, int imageId) {
 		super();
 		this.campaignId = campaignId;
 		this.campaignName = campaignName;
@@ -45,6 +46,7 @@ public class OnUSCampaignDTO {
 		this.campaignStart = campaignStart;
 		this.campaignEnd = campaignEnd;
 		this.campaignText = campaignText;
+		this.campaignStatus = campaignStatus;
 		this.f1 = f1;
 		this.f2 = f2;
 		this.f3 = f3;
@@ -174,6 +176,14 @@ public class OnUSCampaignDTO {
 
 	public void setImageId(int imageId) {
 		this.imageId = imageId;
+	}
+
+	public Integer getCampaignStatus() {
+		return campaignStatus;
+	}
+
+	public void setCampaignStatus(Integer campaignStatus) {
+		this.campaignStatus = campaignStatus;
 	}
 
 }

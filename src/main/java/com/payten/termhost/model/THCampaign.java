@@ -48,6 +48,9 @@ public class THCampaign {
 	@Column(name = "CONTACT_COLLECTING")
 	private boolean contactCollecting;
 
+	@Column(name = "EXTERNAL_ID")
+	private String externalId;
+
 	@OneToMany(fetch = FetchType.EAGER, mappedBy = "campaignId", cascade = CascadeType.ALL)
 	private List<CampaignDefinitions> definitions;
 
@@ -58,7 +61,7 @@ public class THCampaign {
 
 	public THCampaign(Integer campaignId, String campaignName, String campaignDescription, Date campaignStart,
 			Date campaignEnd, CampaignStatus campaignStatus, String campaignText, boolean contactCollecting,
-			List<CampaignDefinitions> definitions) {
+			String exteranalId, List<CampaignDefinitions> definitions) {
 		super();
 		this.campaignId = campaignId;
 		this.campaignName = campaignName;
@@ -68,6 +71,7 @@ public class THCampaign {
 		this.campaignStatus = campaignStatus;
 		this.campaignText = campaignText;
 		this.contactCollecting = contactCollecting;
+		this.externalId = exteranalId;
 		this.definitions = definitions;
 	}
 
@@ -141,6 +145,14 @@ public class THCampaign {
 
 	public void setContactCollecting(boolean contactCollecting) {
 		this.contactCollecting = contactCollecting;
+	}
+
+	public String getExteranlId() {
+		return externalId;
+	}
+
+	public void setExteranalId(String exteranalId) {
+		this.externalId = exteranalId;
 	}
 
 }

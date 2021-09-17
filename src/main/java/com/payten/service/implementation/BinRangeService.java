@@ -1,4 +1,4 @@
-package com.payten.service;
+package com.payten.service.implementation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.payten.service.IBinRangeService;
 import com.payten.termhost.model.offus.BinRange;
 import com.payten.termhost.model.offus.BinRangeGroup;
 import com.payten.termhost.model.offus.BinRangeGroupMember;

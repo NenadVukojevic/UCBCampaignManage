@@ -1,4 +1,4 @@
-package com.payten.service;
+package com.payten.service.implementation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,12 +7,15 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.payten.service.TerminalsService;
+import com.payten.termhost.model.offus.City;
 import com.payten.termhost.model.offus.TerminalGroup;
 import com.payten.termhost.model.offus.TerminalGroupMembers;
 import com.payten.termhost.model.offus.Terminals;
 import com.payten.termhost.model.offus.dto.TerminalDTO;
 import com.payten.termhost.model.offus.dto.TerminalGroupDTO;
 import com.payten.termhost.repository.CampaignBinRangeGroupRepository;
+import com.payten.termhost.repository.CityRepository;
 import com.payten.termhost.repository.TerminalGroupMembersRepository;
 import com.payten.termhost.repository.TerminalGroupRepository;
 import com.payten.termhost.repository.TerminalRepository;
@@ -31,6 +34,9 @@ public class ITerminalsService implements TerminalsService {
 	
 	@Autowired
 	CampaignBinRangeGroupRepository campaignBinRangeGroupRepository;
+	
+	@Autowired
+	CityRepository cityRepository;
 
 	@Override
 	public List<TerminalDTO> getListOfTerminals() {
@@ -117,6 +123,24 @@ public class ITerminalsService implements TerminalsService {
 		}
 
 		return getTerminalGroup(toSave.getTerminalGroupId());
+	}
+
+	@Override
+	public Terminals getTerminal(Integer id) {
+		return terminalRepository.getOne(id);
+	}
+
+	@Override
+	public TerminalDTO addTerminal(TerminalDTO terminal) {
+		Terminals toSave = new Terminals();
+		toSave.setTerminalId(terminal.getTerminalId());
+		toSave.setTid(terminal.getTid());
+		toSave.setLocation(terminal.getLocation());
+		toSave.setDescription(terminal.getDescription());
+		City city = cityRepository.getOne(terminal.getCityId());
+		toSave.setCity(city);
+		Terminals saved = terminalRepository.save(toSave);
+		return new TerminalDTO(saved);
 	}
 
 }

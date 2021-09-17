@@ -1,4 +1,4 @@
-package com.payten.service;
+package com.payten.service.implementation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.payten.service.IOffUsCampaignsService;
 import com.payten.termhost.model.CampaignStatus;
 import com.payten.termhost.model.offus.CampaignBinRangeGroup;
 import com.payten.termhost.model.offus.CampaignTerminalGroups;

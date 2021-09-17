@@ -12,14 +12,14 @@ public class CampaignDTO {
 	private Date campaignEnd;
 	private String campaignText;
 	private String externalId;
-	private Integer campaignStatus;
+	private String campaignStatus;
 	private String collectingText;
 	private boolean contactCollecting;
 
 	private List<CampaignDefinitionDTO> definitions;
 
 	public CampaignDTO(Integer campaignId, String campaignName, String campaignDescription, Date campaignStart,
-			Date campaignEnd, String campaignText, String externalId, Integer campaignStatus, String collectingText,
+			Date campaignEnd, String campaignText, String externalId, String campaignStatus, String collectingText,
 			boolean contactCollecting, List<CampaignDefinitionDTO> definitions) {
 		super();
 		this.campaignId = campaignId;
@@ -111,11 +111,11 @@ public class CampaignDTO {
 		this.externalId = externalId;
 	}
 
-	public Integer getCampaignStatus() {
+	public String getCampaignStatus() {
 		return campaignStatus;
 	}
 
-	public void setCampaignStatus(Integer campaignStatus) {
+	public void setCampaignStatus(String campaignStatus) {
 		this.campaignStatus = campaignStatus;
 	}
 

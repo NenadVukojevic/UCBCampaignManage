@@ -1,6 +1,8 @@
-package com.payten.service;
+package com.payten.service.implementation;
 
 import java.io.IOException;
+import java.sql.Date;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,13 +12,14 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.payten.crm.model.CRMCampaign;
 import com.payten.crm.model.CRMResponse;
+import com.payten.service.ITHService;
 import com.payten.termhost.model.AtmBackground;
 import com.payten.termhost.model.ButtonLabel;
 import com.payten.termhost.model.CampResolution;
 import com.payten.termhost.model.CampaignDTO;
 import com.payten.termhost.model.CampaignDefinitionDTO;
 import com.payten.termhost.model.CampaignDefinitions;
-import com.payten.termhost.model.CampaignRule;
+import com.payten.termhost.model.CampaignStatus;
 import com.payten.termhost.model.OnUSCampaignDTO;
 import com.payten.termhost.model.THCampaign;
 import com.payten.termhost.repository.AtmBackgroundRepository;
@@ -24,29 +27,32 @@ import com.payten.termhost.repository.ButtonLabelRepository;
 import com.payten.termhost.repository.CampResolutionRepository;
 import com.payten.termhost.repository.CampaignDefinitionRepository;
 import com.payten.termhost.repository.CampaignRuleRepository;
+import com.payten.termhost.repository.CampaignStatusRepository;
 import com.payten.termhost.repository.THCampaignRepository;
 
 @Service
 public class THService implements ITHService {
 
-	private final THCampaignRepository thCampaignRepository;
-	private final CampaignRuleRepository campaignRuleRepository;
-	private final AtmBackgroundRepository atmBackgroundRepository;
-	private final ButtonLabelRepository buttonLabelRepository;
-	private final CampaignDefinitionRepository campaignDefinitionRepository;
-	private final CampResolutionRepository campResolutionRepository;
+	@Autowired
+	CampaignStatusRepository campaignStatusRepository;
+
+	@Autowired
+	THCampaignRepository thCampaignRepository;
 	
 	@Autowired
-	public THService(THCampaignRepository thCampaignRepository, CampaignRuleRepository campaignRuleRepository,
-			AtmBackgroundRepository atmBackgroundRepository, ButtonLabelRepository buttonLabelRepository,
-			CampaignDefinitionRepository campaignDefinitionRepository, CampResolutionRepository campResolutionRepository) {
-		this.thCampaignRepository = thCampaignRepository;
-		this.campaignRuleRepository = campaignRuleRepository;
-		this.atmBackgroundRepository = atmBackgroundRepository;
-		this.buttonLabelRepository = buttonLabelRepository;
-		this.campaignDefinitionRepository = campaignDefinitionRepository;
-		this.campResolutionRepository =  campResolutionRepository;
-	}
+	CampaignRuleRepository campaignRuleRepository;
+	
+	@Autowired
+	AtmBackgroundRepository atmBackgroundRepository;
+	
+	@Autowired
+	ButtonLabelRepository buttonLabelRepository;
+	
+	@Autowired
+	CampaignDefinitionRepository campaignDefinitionRepository;
+	
+	@Autowired
+	CampResolutionRepository campResolutionRepository;
 
 	@Override
 	public List<THCampaign> getListOfTHCampaigns() {
@@ -57,22 +63,20 @@ public class THService implements ITHService {
 	@Override
 	public OnUSCampaignDTO getTHCampaingByExternalID(String externalId) {
 		// TODO Auto-generated method stub
-		THCampaign campaign = null;
+		THCampaign campaign = thCampaignRepository.getTHCampaignByExternalId(externalId);
+
 		OnUSCampaignDTO result = new OnUSCampaignDTO();
-		CampaignRule rule = campaignRuleRepository.getCampaignRUleByExternalId(externalId);
-		if (rule != null) {
-			campaign = thCampaignRepository.getTHCampaignByCampaignId(rule.getCampaignId());
-		} else {
+		if (campaign == null) {
+
 			campaign = new THCampaign();
+			campaign.setExteranalId(externalId);
+		} else {
+			result.setCampaignId(campaign.getCampaignId());
+			result.setCampaignName(campaign.getCampaignName());
+			result.setCampaignStatus(campaign.getCampaignStatus().getStatusId());
+			result.setCampaignText(campaign.getCampaignText());
+			result.setCampaignDescription(campaign.getCampaignDescription());
 		}
-
-		result.setCampaignId(campaign.getCampaignId());
-		result.setCampaignName(campaign.getCampaignName());
-		// result.setCampaignStart(campaign.getCampaignStart());
-		// result.setCampaignEnd(campaign.getCampaignEnd());
-		result.setCampaignText(campaign.getCampaignText());
-		result.setCampaignDescription(campaign.getCampaignDescription());
-
 		return result;
 	}
 
@@ -115,40 +119,35 @@ public class THService implements ITHService {
 		newTHCampaign.setCampaignStart(campaign.getCampaignStart());
 		newTHCampaign.setCampaignEnd(campaign.getCampaignEnd());
 		newTHCampaign.setContactCollecting(campaign.isContactCollecting());
+		newTHCampaign.setExteranalId(crmCampaignId);
 
 		newTHCampaign = thCampaignRepository.save(newTHCampaign);
 
-		saveCampaignRule(newTHCampaign.getCampaignId(), campaign.getExternalId());
-
-		
 		for (CampaignDefinitionDTO definition : campaign.getDefinitions()) {
-			if(definition.getCampaignId() == 0)
-			{
+			if (definition.getCampaignId() == 0) {
 				definition.setCampaignId(newTHCampaign.getCampaignId());
 			}
-			
+
 			saveDefinition(definition, responses);
 		}
-		
+
 		return newTHCampaign;
 	}
 
 	private void saveDefinition(CampaignDefinitionDTO definition, List<CRMResponse> responses) {
-		
-		if(definition.getImageId() == 0)
-		{
+
+		if (definition.getImageId() == 0) {
 			return;
 		}
-		
+
 		CampaignDefinitions newDefinition = new CampaignDefinitions();
 		if (definition.getDefinitionId() != 0) {
 			newDefinition = campaignDefinitionRepository.getOne(definition.getDefinitionId());
 		}
-		
+
 		AtmBackground background = atmBackgroundRepository.getOne(definition.getImageId());
 		CampResolution resolution = campResolutionRepository.getOne(definition.getResolutionId());
-		
-		
+
 		ButtonLabel b1 = getButtonId(definition.getF1(), responses);
 		ButtonLabel b2 = getButtonId(definition.getF2(), responses);
 		ButtonLabel b3 = getButtonId(definition.getF3(), responses);
@@ -157,11 +156,11 @@ public class THService implements ITHService {
 		ButtonLabel b6 = getButtonId(definition.getF6(), responses);
 		ButtonLabel b7 = getButtonId(definition.getF7(), responses);
 		ButtonLabel b8 = getButtonId(definition.getF8(), responses);
-		
+
 		newDefinition.setCampaignId(definition.getCampaignId());
 		newDefinition.setAtmBackground(background);
 		newDefinition.setResolution(resolution);
-		
+
 		newDefinition.setBtn1(b1);
 		newDefinition.setBtn2(b2);
 		newDefinition.setBtn3(b3);
@@ -170,24 +169,12 @@ public class THService implements ITHService {
 		newDefinition.setBtn6(b6);
 		newDefinition.setBtn7(b7);
 		newDefinition.setBtn8(b8);
-		
+
 		campaignDefinitionRepository.save(newDefinition);
 	}
 
-	private void saveCampaignRule(Integer campaingId, String externalId) {
-		CampaignRule campaignRule = campaignRuleRepository.getCampaignRUleByExternalId(externalId);
-		if (campaignRule == null) {
-			campaignRule = new CampaignRule();
-			campaignRule.setExternalId(externalId);
-		}
+	private ButtonLabel getButtonId(String buttonCode, List<CRMResponse> responses) {
 
-		campaignRule.setCampaignId(campaingId);
-
-		campaignRule = campaignRuleRepository.save(campaignRule);
-	}
-
-	private ButtonLabel getButtonId(String buttonCode, List<CRMResponse> responses) { 
-		
 		// if code is not set //
 		if (buttonCode == null || buttonCode.equals("")) {
 			return null;
@@ -195,7 +182,7 @@ public class THService implements ITHService {
 
 		System.out.println(buttonCode);
 		ButtonLabel buttonLabel = buttonLabelRepository.getButtonLabelByButtonLabelCode(buttonCode);
-		
+
 		// buttonLabel not found in database
 		// add new buttonLabel
 		if (buttonLabel == null) {
@@ -210,77 +197,77 @@ public class THService implements ITHService {
 					break;
 				}
 			}
-		}
-		else
-		{
+		} else {
 			System.out.println(buttonLabel.toString());
 		}
 		return buttonLabel;
 	}
 
+	private CampaignStatus getStatusByDate(Date StartDate , Date endDate)
+	{
+		CampaignStatus status = new CampaignStatus();
+		Date curr = Date.valueOf(LocalDate.now());
+		if(curr.after(StartDate) && curr.before(endDate)) {
+			status = campaignStatusRepository.getOne(1);
+		}
+		else
+		{
+			status = campaignStatusRepository.getOne(2);
+		}
+		return status;
+	}
+
 	@Override
 	public CampaignDTO getCampaingByExternaelID(CRMCampaign crmCampaign) {
-		THCampaign campaign = null;
+		THCampaign campaign = thCampaignRepository.getTHCampaignByExternalId(crmCampaign.getCampaignId());
+
 		CampaignDTO result = new CampaignDTO();
-		CampaignRule rule = campaignRuleRepository.getCampaignRUleByExternalId(crmCampaign.getCampaignId());
-		if (rule != null) {
-			campaign = thCampaignRepository.getTHCampaignByCampaignId(rule.getCampaignId());
-		} else {
+		if (campaign == null) {
 			campaign = new THCampaign();
 			campaign.setCampaignDescription(crmCampaign.getCampaignDesc());
 			campaign.setCampaignName(crmCampaign.getCampaignName());
 			campaign.setCampaignStart(crmCampaign.getStartDate());
 			campaign.setCampaignEnd(crmCampaign.getEndDate());
 			campaign.setContactCollecting(false);
-
 		}
+
+		campaign.setCampaignStatus(getStatusByDate(crmCampaign.getStartDate(), crmCampaign.getEndDate()));
 
 		result.setExternalId(crmCampaign.getCampaignId());
 
 		result.setCampaignId(campaign.getCampaignId());
-		if(campaign.getCampaignName() != null)
-		{
+		if (campaign.getCampaignName() != null) {
 			result.setCampaignName(campaign.getCampaignName());
-		}
-		else
-		{
+		} else {
 			result.setCampaignName(crmCampaign.getCampaignName());
 		}
-		
-		if(campaign.getCampaignStart()!=null)
-		{
+
+		if (campaign.getCampaignStart() != null) {
 			result.setCampaignStart(campaign.getCampaignStart());
-		}
-		else
-		{
+		} else {
 			result.setCampaignStart(crmCampaign.getStartDate());
 		}
-		
-		if(campaign.getCampaignEnd()!=null)
-		{
+
+		if (campaign.getCampaignEnd() != null) {
 			result.setCampaignEnd(campaign.getCampaignEnd());
-		}
-		else
-		{
+		} else {
 			result.setCampaignEnd(crmCampaign.getEndDate());
 		}
-		
-		if(campaign.getCampaignDescription()!=null)
-		{
+
+		if (campaign.getCampaignDescription() != null) {
 			result.setCampaignDescription(campaign.getCampaignDescription());
-		}
-		else
-		{
+		} else {
 			result.setCampaignDescription(crmCampaign.getCampaignDesc());
 		}
-		
-		if(campaign.getCampaignText() != null)
-		{
+
+		if (campaign.getCampaignText() != null) {
 			result.setCampaignText(campaign.getCampaignText());
-		}
-		else
-		{
+		} else {
 			result.setCampaignText("");
+		}
+
+		if(campaign.getCampaignStatus() != null) {
+			result.setCampaignStatus(campaign.getCampaignStatus().getStatusName());
 		}
 		
 		result.setContactCollecting(campaign.isContactCollecting());

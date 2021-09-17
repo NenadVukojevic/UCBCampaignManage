@@ -1,4 +1,4 @@
-package com.payten.service;
+package com.payten.service.implementation;
 
 import java.sql.Date;
 import java.util.ArrayList;
@@ -12,6 +12,7 @@ import com.payten.crm.model.CRMCampaignDto;
 import com.payten.crm.model.CRMResponse;
 import com.payten.crm.repository.CRMCampaignRepository;
 import com.payten.crm.repository.CRMResponseRepository;
+import com.payten.service.ICRMService;
 
 @Service
 public class CRMService implements ICRMService {

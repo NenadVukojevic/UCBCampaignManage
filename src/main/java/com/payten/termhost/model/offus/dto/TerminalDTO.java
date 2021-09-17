@@ -7,35 +7,38 @@ public class TerminalDTO {
 
 	private String tid;
 
+	private Integer cityId;
+
 	private String cityName;
 
 	private String location;
 
 	private String description;
-	
+
 	private boolean in;
 
 	public TerminalDTO() {
 		super();
 	}
 
-	public TerminalDTO(Integer terminalId, String tid, String cityName, String location, String description,
-			boolean in) {
+	public TerminalDTO(Integer terminalId, String tid, Integer cityId, String cityName, String location,
+			String description, boolean in) {
 		super();
 		this.terminalId = terminalId;
 		this.tid = tid;
+		this.cityId = cityId;
 		this.cityName = cityName;
 		this.location = location;
 		this.description = description;
 		this.in = in;
 	}
 
-
 	public TerminalDTO(Terminals terminal) {
 		super();
 		this.terminalId = terminal.getTerminalId();
 		this.tid = terminal.getTid() != null ? terminal.getTid() : "";
 		this.cityName = terminal.getCity() != null ? terminal.getCity().getCityName() : "";
+		this.cityId = terminal.getCity() != null ? terminal.getCity().getCityId() : 0;
 		this.description = terminal.getDescription() != null ? terminal.getDescription() : "";
 		this.location = terminal.getLocation() != null ? terminal.getLocation() : "";
 		this.in = false;
@@ -89,5 +92,12 @@ public class TerminalDTO {
 		this.in = in;
 	}
 
-	
+	public Integer getCityId() {
+		return cityId;
+	}
+
+	public void setCityId(Integer cityId) {
+		this.cityId = cityId;
+	}
+
 }
